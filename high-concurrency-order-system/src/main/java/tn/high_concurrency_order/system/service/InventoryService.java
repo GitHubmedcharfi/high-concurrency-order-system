@@ -15,6 +15,8 @@ import tn.high_concurrency_order.system.entity.StockReservation;
 import tn.high_concurrency_order.system.repository.InventoryRepository;
 import tn.high_concurrency_order.system.repository.StockReservationRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class InventoryService {
@@ -33,7 +35,6 @@ public class InventoryService {
         return toResponse(inventoryRepository.save(inventory));
     }
 
-    // Optimistic Lock — 90% des cas
     @Transactional
     public ReservationResponse reserveStock(ReservationRequest request) {
         try {
@@ -131,5 +132,20 @@ public class InventoryService {
             .reservedAt(r.getReservedAt())
             .expiresAt(r.getExpiresAt())
             .build();
+    }
+    @Transactional
+    public void confirmReservation(String orderId) {
+        StockReservation reservation = reservationRepository
+                .findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Réservation introuvable"));
+
+        reservation.setStatus(StockReservation.ReservationStatus.CONFIRMED);
+        reservationRepository.save(reservation);
+    }
+    public List<InventoryResponse> getAllInventory() {
+        return inventoryRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 }

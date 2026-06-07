@@ -16,6 +16,8 @@ import tn.high_concurrency_order.system.dto.ReservationRequest;
 import tn.high_concurrency_order.system.dto.ReservationResponse;
 import tn.high_concurrency_order.system.service.InventoryService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/inventory")
 @RequiredArgsConstructor
@@ -32,6 +34,12 @@ public class InventoryController {
     public ResponseEntity<InventoryResponse> get(@PathVariable String productId) {
         return ResponseEntity.ok(inventoryService.getInventory(productId));
     }
+    @GetMapping
+    public ResponseEntity<List<InventoryResponse>> getAll() {
+
+        return ResponseEntity.ok(inventoryService.getAllInventory());
+    }
+
 
     @PostMapping("/reserve")
     public ResponseEntity<ReservationResponse> reserve(@RequestBody ReservationRequest request) {
