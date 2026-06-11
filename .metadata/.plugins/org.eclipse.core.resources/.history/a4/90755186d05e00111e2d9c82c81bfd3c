@@ -1,5 +1,0 @@
-package tn.high_concurrency_order.system.repository;
-
-public interface StockReservationRepository {
-
-}
