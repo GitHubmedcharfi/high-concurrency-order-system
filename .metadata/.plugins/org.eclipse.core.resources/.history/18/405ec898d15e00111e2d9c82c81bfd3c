@@ -1,0 +1,5 @@
+package tn.high_concurrency_order.system.service;
+
+public class InventoryService {
+
+}

@@ -3,8 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-        IMAGE_NAME = 'mohamedcharfi2026/high-concurrency-order-system'
-        IMAGE_TAG = 'v0'
+        ENV_FILE = '/var/jenkins_home/.env'
     }
 
     stages {
@@ -16,9 +15,20 @@ pipeline {
             }
         }
 
+        stage('Load Env') {
+            steps {
+                script {
+                    def props = readProperties file: "${ENV_FILE}"
+                    env.IMAGE_NAME = props.IMAGE_NAME
+                    env.IMAGE_TAG  = props.IMAGE_TAG
+                    env.APP_PORT   = props.APP_PORT
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker image...'
+                echo "Building Docker image ${env.IMAGE_NAME}:${env.IMAGE_TAG}..."
                 sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ./high-concurrency-order-system"
             }
         }
@@ -34,6 +44,7 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 echo 'Deploying...'
+                sh "cp ${ENV_FILE} .env"
                 sh "docker compose down || true"
                 sh "docker compose up -d"
             }
@@ -42,10 +53,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline réussi !'
+            echo 'Pipeline succeeded!'
         }
         failure {
-            echo 'Pipeline échoué !'
+            echo 'Pipeline failed!'
         }
         always {
             sh "docker logout"

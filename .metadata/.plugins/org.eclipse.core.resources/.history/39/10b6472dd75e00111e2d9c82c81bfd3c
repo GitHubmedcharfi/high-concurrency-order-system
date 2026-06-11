@@ -1,0 +1,51 @@
+package tn.high_concurrency_order.system.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import lombok.RequiredArgsConstructor;
+import tn.high_concurrency_order.system.dto.InventoryRequest;
+import tn.high_concurrency_order.system.dto.InventoryResponse;
+import tn.high_concurrency_order.system.dto.ReservationRequest;
+import tn.high_concurrency_order.system.dto.ReservationResponse;
+import tn.high_concurrency_order.system.service.InventoryService;
+
+@RestController
+@RequestMapping("/api/inventory")
+@RequiredArgsConstructor
+public class InventoryController {
+
+    private final InventoryService inventoryService;
+
+    @PostMapping
+    public ResponseEntity<InventoryResponse> create(@RequestBody InventoryRequest request) {
+        return ResponseEntity.ok(inventoryService.createInventory(request));
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<InventoryResponse> get(@PathVariable String productId) {
+        return ResponseEntity.ok(inventoryService.getInventory(productId));
+    }
+
+    @PostMapping("/reserve")
+    public ResponseEntity<ReservationResponse> reserve(@RequestBody ReservationRequest request) {
+        return ResponseEntity.ok(inventoryService.reserveStock(request));
+    }
+
+    @PostMapping("/reserve/critical")
+    public ResponseEntity<ReservationResponse> reserveCritical(@RequestBody ReservationRequest request) {
+        return ResponseEntity.ok(inventoryService.reserveStockCritical(request));
+    }
+
+    @DeleteMapping("/reserve/{orderId}")
+    public ResponseEntity<Void> cancel(@PathVariable String orderId) {
+        inventoryService.cancelReservation(orderId);
+        return ResponseEntity.noContent().build();
+    }
+}

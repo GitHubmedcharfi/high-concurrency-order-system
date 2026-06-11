@@ -6,12 +6,12 @@ services:
     container_name: order-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: order_db
-      MYSQL_USER: order_user
-      MYSQL_PASSWORD: order_pass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE:       ${MYSQL_DATABASE}
+      MYSQL_USER:           ${MYSQL_USER}
+      MYSQL_PASSWORD:       ${MYSQL_PASSWORD}
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT}:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -19,15 +19,15 @@ services:
       retries: 5
 
   app:
-    image: high-concurrency-order-system:latest
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
     container_name: order-app
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "${APP_PORT}:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_db
-      SPRING_DATASOURCE_USERNAME: order_user
-      SPRING_DATASOURCE_PASSWORD: order_pass
+      SPRING_DATASOURCE_URL:      ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     depends_on:
       mysql:
         condition: service_healthy

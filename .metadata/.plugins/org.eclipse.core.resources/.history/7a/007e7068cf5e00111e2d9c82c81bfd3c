@@ -1,0 +1,49 @@
+package tn.high_concurrency_order.system.entity;
+
+package tn.high_concurrency_order.system.inventory.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "stock_reservation")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
+@Builder
+public class StockReservation {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "inventory_id", nullable = false)
+    private Inventory inventory;
+
+    @Column(nullable = false)
+    private String orderId;
+
+    @Column(nullable = false)
+    private Integer quantity;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReservationStatus status;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime reservedAt;
+
+    @Column
+    private LocalDateTime expiresAt;
+
+    @PrePersist
+    protected void onCreate() {
+        reservedAt = LocalDateTime.now();
+        expiresAt = LocalDateTime.now().plusMinutes(15);
+    }
+
+    public enum ReservationStatus {
+        PENDING, CONFIRMED, CANCELLED, EXPIRED
+    }
+}
